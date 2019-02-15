@@ -147,10 +147,12 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
     }
 
     ChangeRecord getRecordForPath(String path) throws KeeperException.NoNodeException {
+        // 最后一次修改记录
         ChangeRecord lastChange = null;
         synchronized (zks.outstandingChanges) {
             lastChange = zks.outstandingChangesForPath.get(path);
             if (lastChange == null) {
+                // DataNode是数据存储的最小单元，其内部除了保存了结点的数据内容、ACL列表、节点状态之外，还记录了父节点的引用和子节点列表两个属性，其也提供了对子节点列表进行操作的接口。
                 DataNode n = zks.getZKDatabase().getNode(path);
                 if (n != null) {
                     Set<String> children;
@@ -341,13 +343,16 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                     throw new KeeperException.InvalidACLException(path);
                 }
                 String parentPath = path.substring(0, lastSlash);
+                // 获取父节点的最后一次修改记录
                 ChangeRecord parentRecord = getRecordForPath(parentPath);
 
                 checkACL(zks, parentRecord.acl, ZooDefs.Perms.CREATE,
                         request.authInfo);
+                // 表示对此znode的子节点进行的更改次数。
                 int parentCVersion = parentRecord.stat.getCversion();
                 CreateMode createMode =
                     CreateMode.fromFlag(createRequest.getFlags());
+                // 创建顺序节点，则在path后面加上序列号，cVersion初始值为0
                 if (createMode.isSequential()) {
                     path = path + String.format(Locale.ENGLISH, "%010d", parentCVersion);
                 }
@@ -359,11 +364,16 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                 } catch (KeeperException.NoNodeException e) {
                     // ignore this one
                 }
+                // 临时节点
+                // ephemeralOwner:如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。
+                // 父节点是不是临时节点，ephemeralOwner不等于0则代表不是临时节点
                 boolean ephemeralParent = parentRecord.stat.getEphemeralOwner() != 0;
                 if (ephemeralParent) {
                     throw new KeeperException.NoChildrenForEphemeralsException(path);
                 }
+                // cVersion加1
                 int newCversion = parentRecord.stat.getCversion()+1;
+                // 生成事务
                 request.txn = new CreateTxn(path, createRequest.getData(),
                         listACL,
                         createMode.isEphemeral(), newCversion);
@@ -374,6 +384,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                 parentRecord = parentRecord.duplicate(request.hdr.getZxid());
                 parentRecord.childCount++;
                 parentRecord.stat.setCversion(newCversion);
+                // 把修改记录加入到集合容器中去，那么就肯定有线程服务去取修改记录进行修改
                 addChangeRecord(parentRecord);
                 addChangeRecord(new ChangeRecord(request.hdr.getZxid(), path, s,
                         0, listACL));
@@ -539,6 +550,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
             switch (request.type) {
                 case OpCode.create:
                 CreateRequest createRequest = new CreateRequest();
+                // zxid的生成
                 pRequest2Txn(request.type, zks.getNextZxid(), request, createRequest, true);
                 break;
             case OpCode.delete:

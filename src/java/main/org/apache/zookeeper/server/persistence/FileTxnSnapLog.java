@@ -192,6 +192,7 @@ public class FileTxnSnapLog {
      */
     public long fastForwardFromEdits(DataTree dt, Map<Long, Integer> sessions,
                                      PlayBackListener listener) throws IOException {
+        // 从数据目录获取出事务日志，然后取出最新的日志，还原到内存中去
         FileTxnLog txnLog = new FileTxnLog(dataDir);
         TxnIterator itr = txnLog.read(dt.lastProcessedZxid+1);
         long highestZxid = dt.lastProcessedZxid;
@@ -295,6 +296,8 @@ public class FileTxnSnapLog {
      * @param sessionsWithTimeouts the sesssion timeouts to be
      * serialized onto disk
      * @throws IOException
+     *
+     * 持久化快照
      */
     public void save(DataTree dataTree,
             ConcurrentHashMap<Long, Integer> sessionsWithTimeouts)

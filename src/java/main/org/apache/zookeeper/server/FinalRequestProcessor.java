@@ -84,6 +84,7 @@ public class FinalRequestProcessor implements RequestProcessor {
         this.zks = zks;
     }
 
+    // 请求后置处理器
     public void processRequest(Request request) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Processing request:: " + request);
@@ -97,6 +98,7 @@ public class FinalRequestProcessor implements RequestProcessor {
             ZooTrace.logRequest(LOG, traceMask, 'E', request, "");
         }
         ProcessTxnResult rc = null;
+        // 从修改记录列表中循环提交修改，包括处理事务，
         synchronized (zks.outstandingChanges) {
             while (!zks.outstandingChanges.isEmpty()
                     && zks.outstandingChanges.get(0).zxid <= request.zxid) {
@@ -389,6 +391,7 @@ public class FinalRequestProcessor implements RequestProcessor {
                     request.createTime, Time.currentElapsedTime());
 
         try {
+            // 发送命令处理完成后的结果，默认是NIOServerCnxn
             cnxn.sendResponse(hdr, rsp, "response");
             if (closeSession) {
                 cnxn.sendCloseSession();
