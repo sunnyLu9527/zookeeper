@@ -413,6 +413,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
             createSessionTracker();
         }
         startSessionTracker();
+        // 这里比较重要，这里设置请求处理器
         setupRequestProcessors();
 
         registerJMX();
@@ -748,6 +749,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
             touch(si.cnxn);
             boolean validpacket = Request.isValid(si.type);
             if (validpacket) {
+                // 往下，这里默认用的是PrepRequestProcessor，并且这是一个线程，会不停的从队列中获取命令进行处理
                 firstProcessor.processRequest(si);
                 if (si.cnxn != null) {
                     incInProcess();

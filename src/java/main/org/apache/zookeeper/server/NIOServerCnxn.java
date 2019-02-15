@@ -208,6 +208,7 @@ public class NIOServerCnxn extends ServerCnxn {
             if (!initialized) {
                 readConnectRequest();
             } else {
+                // 往下
                 readRequest();
             }
             lenBuffer.clear();
@@ -261,6 +262,7 @@ public class NIOServerCnxn extends ServerCnxn {
                         isPayload = true;
                     }
                     if (isPayload) { // not the case for 4letterword
+                        // 往下
                         readPayload();
                     }
                     else {

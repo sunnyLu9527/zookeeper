@@ -119,6 +119,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
     @Override
     public void run() {
         try {
+            // 从队列获取命令进行处理
             while (true) {
                 Request request = submittedRequests.take();
                 long traceMask = ZooTrace.CLIENT_REQUEST_TRACE_MASK;
@@ -131,6 +132,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                 if (Request.requestOfDeath == request) {
                     break;
                 }
+                // 往下
                 pRequest(request);
             }
         } catch (RequestProcessorException e) {
@@ -523,7 +525,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
     /**
      * This method will be called inside the ProcessRequestThread, which is a
      * singleton, so there will be a single thread calling this code.
-     *
+     * 处理命令的核心方法
      * @param request
      */
     @SuppressWarnings("unchecked")
