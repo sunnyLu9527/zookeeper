@@ -261,7 +261,7 @@ public class ZKDatabase {
             byte[] data = SerializeUtils.serializeRequest(request);
             QuorumPacket pp = new QuorumPacket(Leader.PROPOSAL, request.zxid, data, null);
 
-            // 生成一个提交建议，如果是集群，需要把建议发给其他机器，那如果是单机呢，这一步就没有作用了？
+            // 生成一个提交建议，如果是集群，需要把建议发给其他机器
             Proposal p = new Proposal();
             p.packet = pp;
             p.request = request;

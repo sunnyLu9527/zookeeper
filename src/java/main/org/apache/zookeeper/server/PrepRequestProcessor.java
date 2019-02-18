@@ -366,7 +366,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                 }
                 // 临时节点
                 // ephemeralOwner:如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。
-                // 父节点是不是临时节点，ephemeralOwner不等于0则代表不是临时节点
+                // 父节点是不是临时节点，ephemeralOwner不等于0则代表是临时节点
                 boolean ephemeralParent = parentRecord.stat.getEphemeralOwner() != 0;
                 if (ephemeralParent) {
                     throw new KeeperException.NoChildrenForEphemeralsException(path);
@@ -692,6 +692,8 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
             }
         }
         request.zxid = zks.getZxid();
+
+        // 调用Sync
         nextProcessor.processRequest(request);
     }
 
