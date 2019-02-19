@@ -288,6 +288,7 @@ public class FinalRequestProcessor implements RequestProcessor {
                         ZooDefs.Perms.READ,
                         request.authInfo);
                 Stat stat = new Stat();
+                // getDataRequest.getWatch() ? cnxn : null,有watch就会用cnxn
                 byte b[] = zks.getZKDatabase().getData(getDataRequest.getPath(), stat,
                         getDataRequest.getWatch() ? cnxn : null);
                 rsp = new GetDataResponse(b, stat);
