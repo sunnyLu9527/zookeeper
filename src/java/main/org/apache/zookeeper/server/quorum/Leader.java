@@ -965,6 +965,7 @@ public class Leader {
                 + getSidSetString(newLeaderProposal.ackSet)
                 + " ]; starting up and setting last processed zxid: 0x{}",
                 Long.toHexString(zk.getZxid()));
+        // 启动服务器
         zk.startup();
         /*
          * Update the election vote here to ensure that all members of the
@@ -982,6 +983,8 @@ public class Leader {
      * Process NEWLEADER ack of a given sid and wait until the leader receives
      * sufficient acks.
      *
+     * LearnerHandler是一个线程，所有所有的LearnerHandler会公用一个leader
+     *
      * @param sid
      * @throws InterruptedException
      */
@@ -995,6 +998,7 @@ public class Leader {
             }
 
             long currentZxid = newLeaderProposal.packet.getZxid();
+            // 接受到的的zxid不对
             if (zxid != currentZxid) {
                 LOG.error("NEWLEADER ACK from sid: " + sid
                         + " is from a different epoch - current 0x"
@@ -1003,15 +1007,18 @@ public class Leader {
                 return;
             }
 
+            // leander的serverId
             if (isParticipant(sid)) {
                 newLeaderProposal.ackSet.add(sid);
             }
 
+            // 判断新leader这次投票的ack集合是否可以集群验证通过（过半）
             if (self.getQuorumVerifier().containsQuorum(
                     newLeaderProposal.ackSet)) {
                 quorumFormed = true;
                 newLeaderProposal.ackSet.notifyAll();
             } else {
+                // 如果暂时没有验证过，就先wait,等待其他learner线程给ack过来
                 long start = Time.currentElapsedTime();
                 long cur = start;
                 long end = start + self.getInitLimit() * self.getTickTime();
@@ -1077,6 +1084,7 @@ public class Leader {
         return self.isRunning() && zk.isRunning();
     }
 
+    // 是不是参与者
     private boolean isParticipant(long sid) {
         return self.getVotingView().containsKey(sid);
     }
