@@ -123,14 +123,14 @@ public class QuorumCnxManager {
     /*
      * Mapping from Peer to Thread number
      */
-    final ConcurrentHashMap<Long, SendWorker> senderWorkerMap;
-    final ConcurrentHashMap<Long, ArrayBlockingQueue<ByteBuffer>> queueSendMap;
-    final ConcurrentHashMap<Long, ByteBuffer> lastMessageSent;
+    final ConcurrentHashMap<Long, SendWorker> senderWorkerMap;  // 每台服务器对应的SendWorker
+    final ConcurrentHashMap<Long, ArrayBlockingQueue<ByteBuffer>> queueSendMap; // 需要发送给各个服务器的消息队列
+    final ConcurrentHashMap<Long, ByteBuffer> lastMessageSent; // 发送给每台服务器最近的消息
 
     /*
      * Reception queue
      */
-    public final ArrayBlockingQueue<Message> recvQueue;
+    public final ArrayBlockingQueue<Message> recvQueue;  // 本台服务器接收到的消息
     /*
      * Object to synchronize access to recvQueue
      */
@@ -185,6 +185,7 @@ public class QuorumCnxManager {
                             int quorumCnxnThreadsSize,
                             boolean quorumSaslAuthEnabled,
                             ConcurrentHashMap<Long, SendWorker> senderWorkerMap) {
+
         this.senderWorkerMap = senderWorkerMap;
 
         this.recvQueue = new ArrayBlockingQueue<Message>(RECV_CAPACITY);
@@ -321,6 +322,16 @@ public class QuorumCnxManager {
         }
     }
 
+    /**
+     * 开始连接
+     *
+     * 每台服务器都有会去连其他服务器，但是两台服务器之间没必要去建立两条socket,所以规定
+     * 如果我要去连的服务器的sid大于我自己的sid，则不进行连接，并且关闭刚刚创建的socket
+     * @param sock
+     * @param sid
+     * @return
+     * @throws IOException
+     */
     private boolean startConnection(Socket sock, Long sid)
             throws IOException {
         DataOutputStream dout = null;
@@ -349,6 +360,7 @@ public class QuorumCnxManager {
             closeSocket(sock);
             // Otherwise proceed with the connection
         } else {
+            // 能够建立连接了，就初始化SendWorker和RecvWorker并且启动
             SendWorker sw = new SendWorker(sock, sid);
             RecvWorker rw = new RecvWorker(sock, din, sid, sw);
             sw.setRecv(rw);
@@ -423,6 +435,7 @@ public class QuorumCnxManager {
         }
     }
 
+    // 接受连接
     private void handleConnection(Socket sock, DataInputStream din)
             throws IOException {
         Long sid = null;
@@ -467,6 +480,7 @@ public class QuorumCnxManager {
         authServer.authenticate(sock, din);
 
         //If wins the challenge, then close the new connection.
+        // 如果我的sid大于对方的，则有我去连接他
         if (sid < this.mySid) {
             /*
              * This replica might still believe that the connection to sid is
@@ -516,6 +530,7 @@ public class QuorumCnxManager {
          */
         if (this.mySid == sid) {
              b.position(0);
+             // 如果是给自己发送的，则不需要经过网络，自己转成Message并加入到recvQueue队列中即可
              addToRecvQueue(new Message(b.duplicate(), sid));
             /*
              * Otherwise send to the corresponding thread to send.
@@ -523,6 +538,8 @@ public class QuorumCnxManager {
         } else {
              /*
               * Start a new connection if doesn't have one already.
+              * 发送给其他服务器
+              * 加入到服务器所对应的发送队列中
               */
              ArrayBlockingQueue<ByteBuffer> bq = new ArrayBlockingQueue<ByteBuffer>(SEND_CAPACITY);
              ArrayBlockingQueue<ByteBuffer> bqExisting = queueSendMap.putIfAbsent(sid, bq);
@@ -531,6 +548,7 @@ public class QuorumCnxManager {
              } else {
                  addToSendQueue(bq, b);
              }
+             // 如果还没有连接到这个服务器就连一下
              connectOne(sid);
                 
         }
@@ -545,6 +563,7 @@ public class QuorumCnxManager {
         if (!connectedToPeer(sid)){
             InetSocketAddress electionAddr;
             if (view.containsKey(sid)) {
+                // 获取选举地址进行连接
                 electionAddr = view.get(sid).electionAddr;
             } else {
                 LOG.warn("Invalid server id: " + sid);
@@ -565,6 +584,7 @@ public class QuorumCnxManager {
                 if (quorumSaslAuthEnabled) {
                     initiateConnectionAsync(sock, sid);
                 } else {
+                    // sock连接好了之后，进行初始化
                     initiateConnection(sock, sid);
                 }
             } catch (UnresolvedAddressException e) {
@@ -606,7 +626,7 @@ public class QuorumCnxManager {
         long sid;
         for(Enumeration<Long> en = queueSendMap.keys();
             en.hasMoreElements();){
-            sid = en.nextElement();
+            sid = en.nextElement(); // 服务器id
             connectOne(sid);
         }      
     }

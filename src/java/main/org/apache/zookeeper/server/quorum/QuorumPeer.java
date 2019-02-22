@@ -647,6 +647,7 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
         cnxnFactory.start();
         // 进行领导者选举，确定服务器的角色，再针对不同的服务器角色进行初始化
         startLeaderElection();
+        // 本类的run方法
         super.start();
     }
 
@@ -714,6 +715,7 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
     }
     synchronized public void startLeaderElection() {
     	try {
+    	    // 生成投票，投给自己
     		currentVote = new Vote(myid, getLastLoggedZxid(), getCurrentEpoch());
     	} catch(IOException e) {
     		RuntimeException re = new RuntimeException(e.getMessage());
@@ -833,10 +835,12 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
             le = new AuthFastLeaderElection(this, true);
             break;
         case 3:
+            // 初始化负责各台服务器之间的底层Leader选举过程中的网络通信。
             qcm = createCnxnManager();
             QuorumCnxManager.Listener listener = qcm.listener;
             if(listener != null){
                 listener.start();
+                // 默认用的是FastLeaderElection
                 le = new FastLeaderElection(this, qcm);
             } else {
                 LOG.error("Null listener when initializing cnx manager");
@@ -853,7 +857,7 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
         if (getElectionType() == 0) {
             electionAlg = new LeaderElection(this);
         }        
-        return electionAlg;
+        return electionAlg;  // FastLeaderElection
     }
 
     synchronized protected void setLeader(Leader newLeader){
@@ -925,8 +929,10 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
                     LOG.info("LOOKING");
                     // 正在寻找leader
 
+                    // 不关心只读服务器
                     if (Boolean.getBoolean("readonlymode.enabled")) {
                         LOG.info("Attempting to start ReadOnlyZooKeeperServer");
+
 
                         // Create read-only server but don't start it immediately
                         final ReadOnlyZooKeeperServer roZk = new ReadOnlyZooKeeperServer(
@@ -969,7 +975,9 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
                             roZk.shutdown();
                         }
                     } else {
+                        // 直接看这里
                         try {
+                            // 兼容性代码
                             setBCVote(null);
                             setCurrentVote(makeLEStrategy().lookForLeader());
                         } catch (Exception e) {
@@ -1004,6 +1012,7 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
                     } finally {
                         follower.shutdown();
                         setFollower(null);
+                        // 只要服务器在运行的过程中出现了异常就会设置成LOOKING状态
                         setPeerState(ServerState.LOOKING);
                     }
                     break;
