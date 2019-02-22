@@ -16,7 +16,7 @@ public class CreateNode {
             }
         });
 
-//        zk.create("/luban4445", "zhouyu".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        zk.create("/luban4445", "zhouyu".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
 
 
