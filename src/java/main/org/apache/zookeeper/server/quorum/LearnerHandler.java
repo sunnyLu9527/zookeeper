@@ -693,6 +693,7 @@ public class LearnerHandler extends ZooKeeperThread {
             LOG.warn("******* GOODBYE " 
                     + (sock != null ? sock.getRemoteSocketAddress() : "<null>")
                     + " ********");
+            // 不是一个普通的关闭
             shutdown();
         }
     }

@@ -42,6 +42,11 @@
   </publications>
 
   <dependencies>
+
+      <!-- 两个客户端 -->
+    <!--<dependency org="org.apache.curator" name="curator-framework" rev="2.8.0"/>-->
+    <!--<dependency org="com.101tec" name="zkclient" rev="0.5"/>-->
+
     <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j.version}"/>
     <dependency org="org.slf4j" name="slf4j-log4j12" rev="${slf4j.version}" transitive="false"/>
 
