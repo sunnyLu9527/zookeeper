@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  * *************学海无涯苦作舟***************
  */
 public class LeaderLatchExample {
+    // 这种方式用的临时节点
 
     public static void main(String[] args) throws Exception {
 

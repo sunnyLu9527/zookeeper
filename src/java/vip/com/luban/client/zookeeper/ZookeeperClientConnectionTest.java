@@ -18,7 +18,7 @@ public class ZookeeperClientConnectionTest {
 
     public static void main(String[] args) throws IOException, KeeperException, InterruptedException {
         // 默认的watch
-        ZooKeeper client = new ZooKeeper("localhost:2181", 10000, new Watcher() {
+        ZooKeeper client = new ZooKeeper("localhost:2181", 5000, new Watcher() {
             @Override
             public void process(WatchedEvent event) {
                 System.out.println("默认的watch:" + event.getType());

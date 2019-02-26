@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * *************学海无涯苦作舟***************
  */
 public class LeaderSelectorExample {
+    // 这种方式用的是锁
 
     public static void main(String[] args) throws IOException {
         List<CuratorFramework> clients = Lists.newArrayList();

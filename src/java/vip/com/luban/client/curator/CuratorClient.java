@@ -19,7 +19,12 @@ import org.apache.zookeeper.Watcher;
 public class CuratorClient {
     public static void main(String[] args) throws Exception {
 
-        // 1. 重试机制
+        // 重试机制
+        // 1.RetryUntilElapsed(int maxElapsedTimeMs, int sleepMsBetweenRetries)：以sleepMsBetweenRetries的间隔重连,直到超过maxElapsedTimeMs的时间设置
+        // 2.RetryNTimes(int n, int sleepMsBetweenRetries) :指定重连次数
+        // 3.RetryOneTime(int sleepMsBetweenRetry):重连一次
+        // 4.ExponentialBackoffRetry:时间间隔 = baseSleepTimeMs * Math.max(1, random.nextInt(1 << (retryCount + 1)))
+
         CuratorFramework client = CuratorFrameworkFactory.newClient("localhost:2181", new RetryNTimes(3, 1000));
         client
 //                .usingNamespace("/testNamespace") // 如果有命名空间，那么后续的forPath都会加上namespace
