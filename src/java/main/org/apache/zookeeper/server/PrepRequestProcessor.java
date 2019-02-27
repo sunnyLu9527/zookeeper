@@ -718,6 +718,9 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
      *
      * @param authInfo list of ACL IDs associated with the client connection
      * @param acl list of ACLs being assigned to the node (create or setACL operation)
+     *
+     * authInfo 当前登录的用户
+     * acl 针对设置的权限
      * @return
      */
     private boolean fixupACL(List<Id> authInfo, List<ACL> acl) {
@@ -730,12 +733,14 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
 
         Iterator<ACL> it = acl.iterator();
         LinkedList<ACL> toAdd = null;
+        // 循环设置的权限
         while (it.hasNext()) {
             ACL a = it.next();
             Id id = a.getId();
             if (id.getScheme().equals("world") && id.getId().equals("anyone")) {
                 // wide open
             } else if (id.getScheme().equals("auth")) {
+                // 如果是权限是针对用户设置的
                 // This is the "auth" id, so we have to expand it to the
                 // authenticated ids of the requestor
                 it.remove();
@@ -751,6 +756,8 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                                 + cid.getScheme());
                     } else if (ap.isAuthenticated()) {
                         authIdValid = true;
+                        // 注意这里，这个toAdd后面会用，
+                        // 主要逻辑就是针对某一个用户设置的ACL，循环当前所有的用户，针对每一个用户设置和ACL一样的perm，并且构造出新的acl
                         toAdd.add(new ACL(a.getPerms(), cid));
                     }
                 }
