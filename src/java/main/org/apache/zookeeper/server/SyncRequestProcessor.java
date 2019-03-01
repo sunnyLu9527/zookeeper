@@ -182,7 +182,7 @@ public class SyncRequestProcessor extends ZooKeeperCriticalThread implements Req
                     }
                     // 待刷新到磁盘，
                     toFlush.add(si);
-                    // 当请求树超过1000了就会刷新到磁盘
+                    // 当请求数超过1000了就会刷新到磁盘
                     // flush方法里面也会调用nextProcessor，代表刷新到事务都持久化到磁盘之后，就调用下一个请求处理器
                     if (toFlush.size() > 1000) {
                         flush(toFlush);

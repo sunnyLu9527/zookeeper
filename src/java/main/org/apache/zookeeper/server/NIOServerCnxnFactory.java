@@ -214,7 +214,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory implements Runnable 
                         selected);
                 Collections.shuffle(selectedList);
                 for (SelectionKey k : selectedList) {
-                    if ((k.readyOps() & SelectionKey.OP_ACCEPT) != 0) {
+                    if ((k.readyOps() & SelectionKey.OP_ACCEPT) != 0) { // 连接就绪
                         // 建立连接
                         SocketChannel sc = ((ServerSocketChannel) k
                                 .channel()).accept();

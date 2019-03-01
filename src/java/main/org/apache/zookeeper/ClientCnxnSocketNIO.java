@@ -64,7 +64,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         if (sock == null) {
             throw new IOException("Socket is null!");
         }
-        if (sockKey.isReadable()) { // 若读就绪
+        if (sockKey.isReadable()) { // 可以读了
             int rc = sock.read(incomingBuffer);
             if (rc < 0) { //如果<0,表示读到末尾了,这种情况出现在连接关闭的时候
                 throw new EndOfStreamException(
@@ -117,7 +117,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                         p.createBB();
                     }
                     sock.write(p.bb);
-                    if (!p.bb.hasRemaining()) {
+                    if (!p.bb.hasRemaining()) {  // 没有剩下的了
                         sentCount++;
                         outgoingQueue.removeFirstOccurrence(p); // 从待发送队列中取出该packet
                         if (p.requestHeader != null
@@ -275,6 +275,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
      */
     void registerAndConnect(SocketChannel sock, InetSocketAddress addr) 
     throws IOException {
+        // 将socketChannel注册到selector上，并且监听连接事件
         sockKey = sock.register(selector, SelectionKey.OP_CONNECT);
         // registerAndConnect中如果立即connect就调用sendThread.primeConnection();
         // 如果没有立即connect上，那么就在下面介绍的doTransport中等待SocketChannel finishConnect再调用
@@ -286,6 +287,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
     
     @Override
     void connect(InetSocketAddress addr) throws IOException {
+        // 建立socket
         SocketChannel sock = createSock();
         try {
             // 注册这个sock到服务端

@@ -23,23 +23,23 @@ public class ZookeeperClient {
             public void process(WatchedEvent event) {
                 System.out.println("默认的watch:" + event.getType());
             }
-        });
+        }, false);
 
-        client.create("/luban", "lb".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+//        client.create("/luban", "lb".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 //        client.create("/luban", "lb".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-//        client.create("/luban", "lb".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+//        client.create("/luban2", "lb".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
 //        client.create("/luban", "lb".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
 
         // watcher的一致性
-//        client.getData("/luban", new Watcher() {
-//            @Override
-//            public void process(WatchedEvent event) {
-//                System.out.println("get绑定的watch");
-//            }
-//        }, null);
+        client.getData("/luban", new Watcher() {
+            @Override
+            public void process(WatchedEvent event) {
+                System.out.println("get绑定的watch");
+            }
+        }, null);
 
 
-//        client.getData("/luban", true, null);
+//        System.out.println(new String(client.getData("/test", true, null))+"==========");
 
         // stat怎么用？stat代表的是节点信息，如果想获取出节点信息就可以
 //        Stat stat = new Stat();
@@ -69,6 +69,7 @@ public class ZookeeperClient {
 //                System.out.println("ChildrenCallback");
 //            }
 //        }, null);
+
 
         System.in.read();
     }

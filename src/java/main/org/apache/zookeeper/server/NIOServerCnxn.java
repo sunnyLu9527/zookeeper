@@ -203,7 +203,7 @@ public class NIOServerCnxn extends ServerCnxn {
         }
 
         if (incomingBuffer.remaining() == 0) { // have we read length bytes?
-            packetReceived();
+            packetReceived(); // 计数
             incomingBuffer.flip();
             if (!initialized) {
                 readConnectRequest();
@@ -988,6 +988,7 @@ public class NIOServerCnxn extends ServerCnxn {
         if (!initialized && checkFourLetterWord(sk, len)) {
             return false;
         }
+        // 校验长度
         if (len < 0 || len > BinaryInputArchive.maxBuffer) {
             throw new IOException("Len error " + len);
         }

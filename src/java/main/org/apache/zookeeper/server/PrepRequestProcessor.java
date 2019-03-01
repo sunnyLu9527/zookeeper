@@ -757,7 +757,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                     } else if (ap.isAuthenticated()) {
                         authIdValid = true;
                         // 注意这里，这个toAdd后面会用，
-                        // 主要逻辑就是针对某一个用户设置的ACL，循环当前所有的用户，针对每一个用户设置和ACL一样的perm，并且构造出新的acl
+                        // 主要逻辑就是针对某一个用户设置的ACL，循环当前所有的用户，针对每一个用户设置的ACL一样的perm，并且构造出新的acl
                         toAdd.add(new ACL(a.getPerms(), cid));
                     }
                 }
