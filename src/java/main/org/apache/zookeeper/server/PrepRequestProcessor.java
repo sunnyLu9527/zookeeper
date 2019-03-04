@@ -643,7 +643,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                 pRequest2Txn(request.type, zks.getNextZxid(), request, null, true);
                 break;
  
-            //All the rest don't need to create a Txn - just verify session
+            //All the rest don't need to create a Txn - just verify session 非事务请求
             case OpCode.sync:
             case OpCode.exists:
             case OpCode.getData:

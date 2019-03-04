@@ -67,6 +67,7 @@ public class CommitProcessor extends ZooKeeperCriticalThread implements RequestP
 
     volatile boolean finished = false;
 
+    // 对于非事务请求，直接调用nextProcessor， 对于事务请求，会阻塞，直到投票成功
     @Override
     public void run() {
         try {

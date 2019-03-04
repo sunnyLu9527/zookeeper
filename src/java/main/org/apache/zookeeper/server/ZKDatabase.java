@@ -242,6 +242,9 @@ public class ZKDatabase {
      * maintains a list of last <i>committedLog</i>
      *  or so committed requests. This is used for
      * fast follower synchronization.
+     * 在把事务都持久化并且更新内存后，会记录一下提交日志，用户Leader与follower节点进行同步
+     * 相当于一个提交历史，但是只会存最近的500次
+     *
      * @param request committed request
      */
     public void addCommittedProposal(Request request) {
@@ -257,11 +260,9 @@ public class ZKDatabase {
                 maxCommittedLog = request.zxid;
             }
 
-            // 序列化请求
             byte[] data = SerializeUtils.serializeRequest(request);
             QuorumPacket pp = new QuorumPacket(Leader.PROPOSAL, request.zxid, data, null);
 
-            // 生成一个提交建议，如果是集群，需要把建议发给其他机器
             Proposal p = new Proposal();
             p.packet = pp;
             p.request = request;

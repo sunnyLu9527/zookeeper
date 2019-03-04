@@ -108,7 +108,7 @@ public class NIOServerCnxn extends ServerCnxn {
         sock.socket().setSoLinger(false, -1);
         InetAddress addr = ((InetSocketAddress) sock.socket()
                 .getRemoteSocketAddress()).getAddress();
-        authInfo.add(new Id("ip", addr.getHostAddress()));
+        authInfo.add(new Id("ip", addr.getHostAddress())); // 让本地有权限
         sk.interestOps(SelectionKey.OP_READ);
     }
 
@@ -255,6 +255,7 @@ public class NIOServerCnxn extends ServerCnxn {
                     boolean isPayload;
                     if (incomingBuffer == lenBuffer) { // start of next request
                         incomingBuffer.flip();
+                        // 校验长度
                         isPayload = readLength(k);
                         incomingBuffer.clear();
                     } else {

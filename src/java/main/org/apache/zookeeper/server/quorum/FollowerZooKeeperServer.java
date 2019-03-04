@@ -76,6 +76,7 @@ public class FollowerZooKeeperServer extends LearnerZooKeeperServer {
         // FollowerRequestProcessor的next是CommitProcessor， 所以FollowerRequestProcessor->CommitProcessor
 
         RequestProcessor finalProcessor = new FinalRequestProcessor(this);
+        // CommitProcessor有阻塞的作用
         commitProcessor = new CommitProcessor(finalProcessor,
                 Long.toString(getServerId()), true,
                 getZooKeeperServerListener());

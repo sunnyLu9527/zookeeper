@@ -189,10 +189,12 @@ public class FileTxnSnapLog {
      * database transactions.
      * @return the highest zxid restored.
      * @throws IOException
+     *
+     *
      */
+    // 从快照中还原数据库时，快照很可能落后于事务日志，所以需要从落后的那一部分事务日志中更新内存
     public long fastForwardFromEdits(DataTree dt, Map<Long, Integer> sessions,
                                      PlayBackListener listener) throws IOException {
-        // 从数据目录获取出事务日志，然后取出最新的日志，还原到内存中去
         FileTxnLog txnLog = new FileTxnLog(dataDir);
         TxnIterator itr = txnLog.read(dt.lastProcessedZxid+1);
         long highestZxid = dt.lastProcessedZxid;

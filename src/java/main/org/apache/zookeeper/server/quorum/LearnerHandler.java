@@ -406,7 +406,7 @@ public class LearnerHandler extends ZooKeeperThread {
             ReadLock rl = lock.readLock();
             try {
                 rl.lock();
-                // 获取leader本地的最小，最大提交log的zxid;
+                // 获取leader本地的最小，最大历史提交log的zxid;
                 final long maxCommittedLog = leader.zk.getZKDatabase().getmaxCommittedLog();
                 final long minCommittedLog = leader.zk.getZKDatabase().getminCommittedLog();
                 LOG.info("Synchronizing with Follower sid: " + sid
@@ -414,6 +414,7 @@ public class LearnerHandler extends ZooKeeperThread {
                         +" minCommittedLog=0x"+Long.toHexString(minCommittedLog)
                         +" peerLastZxid=0x"+Long.toHexString(peerLastZxid));
 
+                // 历史提交记录
                 LinkedList<Proposal> proposals = leader.zk.getZKDatabase().getCommittedLog();
 
                 // 如果learner的最新zxid和leader当前最新的是相等的，则没有diff
@@ -511,6 +512,7 @@ public class LearnerHandler extends ZooKeeperThread {
             if (packetToSend == Leader.SNAP) { //如果是SNAP同步，获取zxid
                 zxidToSend = leader.zk.getZKDatabase().getDataTreeLastProcessedZxid();
             }
+            // 写发送类型，再发送数据
             oa.writeRecord(new QuorumPacket(packetToSend, zxidToSend, null, null), "packet");
             bufferedOutput.flush();
             
@@ -548,7 +550,7 @@ public class LearnerHandler extends ZooKeeperThread {
              */
             qp = new QuorumPacket();
             ia.readRecord(qp, "packet");
-            if(qp.getType() != Leader.ACK){ //Learner接收到NEWLEADER 一定会返回ACK
+            if(qp.getType() != Leader.ACK){
                 LOG.error("Next packet was supposed to be an ACK");
                 return;
             }
@@ -597,6 +599,7 @@ public class LearnerHandler extends ZooKeeperThread {
                 int cxid;
                 int type;
 
+                // 处理其他服务器的请求
                 switch (qp.getType()) {
                 case Leader.ACK:
                     // 收到同步ack
