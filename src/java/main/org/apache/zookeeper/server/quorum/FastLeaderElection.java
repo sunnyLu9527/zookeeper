@@ -820,7 +820,8 @@ public class FastLeaderElection implements Election {
 
             synchronized(this){
                 logicalclock.incrementAndGet(); // 时钟+1
-                updateProposal(getInitId(), getInitLastLoggedZxid(), getPeerEpoch());  //更新提议，包含(myid,lastZxid,epoch)
+                //更新提议，包含(myid,lastZxid,epoch)，更新为自己
+                updateProposal(getInitId(), getInitLastLoggedZxid(), getPeerEpoch());
             }
 
             LOG.info("New election. My id =  " + self.getId() +
@@ -871,6 +872,7 @@ public class FastLeaderElection implements Election {
                      */
                     switch (n.state) {
                     case LOOKING:
+                        // 发送选票的服务器也在进行领导者选举
                         // If notification > current, replace and send messages out
                         if (n.electionEpoch > logicalclock.get()) { //如果接收到的投票轮次比自己的高
                             logicalclock.set(n.electionEpoch); // 设置自己的时钟为选票的时钟

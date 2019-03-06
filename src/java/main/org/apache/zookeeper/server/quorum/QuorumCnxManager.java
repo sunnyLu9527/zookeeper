@@ -771,6 +771,7 @@ public class QuorumCnxManager {
                         if (quorumSaslAuthEnabled) {
                             receiveConnectionAsync(client);
                         } else {
+                            // 一个socket调用一次
                             receiveConnection(client);
                         }
 
