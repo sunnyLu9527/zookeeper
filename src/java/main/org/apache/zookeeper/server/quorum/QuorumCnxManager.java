@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * 
  * If two servers try to start a connection concurrently, then the connection
  * manager uses a very simple tie-breaking mechanism to decide which connection
- * to drop based on the IP addressed of the two parties. 
+ * to drop based on the IP addressed of the two parties.
  * 
  * For every peer, the manager maintains a queue of messages to send. If the
  * connection to any particular peer drops, then the sender thread puts the
@@ -481,7 +481,7 @@ public class QuorumCnxManager {
 
         //If wins the challenge, then close the new connection.
         // 如果我的sid大于对方的，则有我去连接他
-        if (sid < this.mySid) {
+        if (sid < this.mySid) {  // sid是对方的sid
             /*
              * This replica might still believe that the connection to sid is
              * up, so we have to shut down the workers before trying to open a
@@ -758,7 +758,7 @@ public class QuorumCnxManager {
                             .electionAddr.toString());
                     ss.bind(addr);
                     while (!shutdown) {
-                        Socket client = ss.accept();
+                        Socket client = ss.accept(); //
                         setSockOpts(client);
                         LOG.info("Received connection request "
                                 + client.getRemoteSocketAddress());
