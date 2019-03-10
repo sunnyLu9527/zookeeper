@@ -329,7 +329,7 @@ public class ZooKeeperMain {
                 String line;
                 Method readLine = consoleC.getMethod("readLine", String.class);
                 while ((line = (String)readLine.invoke(console, getPrompt())) != null) {
-                    executeLine(line);
+                    executeLine(line); // 执行命令行的输入
                 }
             } catch (ClassNotFoundException e) {
                 LOG.debug("Unable to start jline", e);

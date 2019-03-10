@@ -64,7 +64,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         if (sock == null) {
             throw new IOException("Socket is null!");
         }
-        if (sockKey.isReadable()) {
+        if (sockKey.isReadable()) { // 读就绪
             int rc = sock.read(incomingBuffer);
             if (rc < 0) {
                 throw new EndOfStreamException(
@@ -77,8 +77,8 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                 if (incomingBuffer == lenBuffer) {
                     recvCount++;
                     readLength();
-                } else if (!initialized) {
-                    readConnectResult();
+                } else if (!initialized) { // 连接有没有初始化
+                    readConnectResult(); // primeConnection()
                     enableRead();
                     if (findSendablePacket(outgoingQueue,
                             cnxn.sendThread.clientTunneledAuthenticationInProgress()) != null) {
@@ -98,7 +98,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                 }
             }
         }
-        if (sockKey.isWritable()) {
+        if (sockKey.isWritable()) { // 写就绪
             synchronized(outgoingQueue) {
                 Packet p = findSendablePacket(outgoingQueue,
                         cnxn.sendThread.clientTunneledAuthenticationInProgress());
@@ -114,8 +114,8 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                         }
                         p.createBB();
                     }
-                    sock.write(p.bb);
-                    if (!p.bb.hasRemaining()) {
+                    sock.write(p.bb); // 发送服务端
+                    if (!p.bb.hasRemaining()) { // 没有剩余的数据
                         sentCount++;
                         outgoingQueue.removeFirstOccurrence(p);
                         if (p.requestHeader != null
@@ -273,6 +273,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
      */
     void registerAndConnect(SocketChannel sock, InetSocketAddress addr) 
     throws IOException {
+        //
         sockKey = sock.register(selector, SelectionKey.OP_CONNECT);
         boolean immediateConnect = sock.connect(addr);
         if (immediateConnect) {
@@ -282,7 +283,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
     
     @Override
     void connect(InetSocketAddress addr) throws IOException {
-        SocketChannel sock = createSock();
+        SocketChannel sock = createSock(); // 建立socket
         try {
            registerAndConnect(sock, addr);
         } catch (IOException e) {

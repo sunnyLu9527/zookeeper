@@ -270,6 +270,9 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
         }
     }
 
+    // acl是节点以及存在权限规则:  scheme:id;     zhangsan:123123:ad, ip:192.168.0.123:adc
+    // perm是当前这个操作需要的权限
+    //
     static void checkACL(ZooKeeperServer zks, List<ACL> acl, int perm,
             List<Id> ids) throws KeeperException.NoAuthException {
         if (skipACL) {

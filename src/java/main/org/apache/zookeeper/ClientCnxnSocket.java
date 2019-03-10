@@ -78,10 +78,12 @@ abstract class ClientCnxnSocket {
         now = Time.currentElapsedTime();
     }
 
+    // 距离上一次读数据时间
     int getIdleRecv() {
         return (int) (now - lastHeard);
     }
 
+    // 距离上一次发送数据时间
     int getIdleSend() {
         return (int) (now - lastSend);
     }

@@ -444,8 +444,10 @@ public class ZooKeeper {
 
         watchManager.defaultWatcher = watcher;
 
+        // 包装地址
         ConnectStringParser connectStringParser = new ConnectStringParser(
                 connectString);
+
         HostProvider hostProvider = new StaticHostProvider(
                 connectStringParser.getServerAddresses());
         cnxn = new ClientCnxn(connectStringParser.getChrootPath(),

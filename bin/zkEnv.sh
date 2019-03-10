@@ -112,4 +112,4 @@ then
     CLASSPATH=`cygpath -wp "$CLASSPATH"`
 fi
 
-#echo "CLASSPATH=$CLASSPATH"
+echo "CLASSPATH=$CLASSPATH"

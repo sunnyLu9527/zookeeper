@@ -1043,7 +1043,7 @@ public class ClientCnxn {
             InetSocketAddress serverAddress = null;
             while (state.isAlive()) {
                 try {
-                    if (!clientCnxnSocket.isConnected()) {
+                    if (!clientCnxnSocket.isConnected()) { // 如果socket还没有连接
                         if(!isFirstConnect){
                             try {
                                 Thread.sleep(r.nextInt(1000));
@@ -1061,7 +1061,7 @@ public class ClientCnxn {
                         } else {
                             serverAddress = hostProvider.next(1000);
                         }
-                        startConnect(serverAddress);
+                        startConnect(serverAddress); // 进行socket连接
                         clientCnxnSocket.updateLastSendAndHeard();
                     }
 
@@ -1097,7 +1097,7 @@ public class ClientCnxn {
                                       authState,null));
                             }
                         }
-                        to = readTimeout - clientCnxnSocket.getIdleRecv();
+                        to = readTimeout - clientCnxnSocket.getIdleRecv();  //
                     } else {
                         to = connectTimeout - clientCnxnSocket.getIdleRecv();
                     }
@@ -1307,6 +1307,7 @@ public class ClientCnxn {
                     + (isRO ? " (READ-ONLY mode)" : ""));
             KeeperState eventState = (isRO) ?
                     KeeperState.ConnectedReadOnly : KeeperState.SyncConnected;
+            //
             eventThread.queueEvent(new WatchedEvent(
                     Watcher.Event.EventType.None,
                     eventState, null));
