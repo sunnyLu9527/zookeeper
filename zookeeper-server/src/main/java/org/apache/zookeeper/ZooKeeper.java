@@ -875,6 +875,7 @@ public class ZooKeeper implements AutoCloseable {
         this.clientConfig = clientConfig;
         watchManager = defaultWatchManager();
         watchManager.defaultWatcher = watcher;
+        //包装地址 ip1:port,ip2:port
         ConnectStringParser connectStringParser = new ConnectStringParser(
                 connectString);
         hostProvider = aHostProvider;
@@ -2996,7 +2997,13 @@ public class ZooKeeper implements AutoCloseable {
         return cnxn.sendThread.getClientCnxnSocket().getLocalSocketAddress();
     }
 
+    /**
+     * 返回socket nio的实例
+     * @return
+     * @throws IOException
+     */
     private ClientCnxnSocket getClientCnxnSocket() throws IOException {
+        //默认是ClientCnxnSocketNIO类的实例 可以通过ZOOKEEPER_CLIENT_CNXN_SOCKET属性配置具体的实例类
         String clientCnxnSocketName = getClientConfig().getProperty(
                 ZKClientConfig.ZOOKEEPER_CLIENT_CNXN_SOCKET);
         if (clientCnxnSocketName == null) {

@@ -101,7 +101,7 @@ public class ZooKeeperMain {
         commandMap.put("redo","cmdno");
         commandMap.put("printwatches", "on|off");
         commandMap.put("quit", "");
-
+        //写入命令实体到map中
         new CloseCommand().addToMap(commandMapCli);
         new CreateCommand().addToMap(commandMapCli);
         new DeleteCommand().addToMap(commandMapCli);
@@ -314,7 +314,7 @@ public class ZooKeeperMain {
             boolean jlinemissing = false;
             // only use jline if it's in the classpath
             try {
-                Class<?> consoleC = Class.forName("jline.console.ConsoleReader");
+                Class<?> consoleC = Class.forName("jline.console.ConsoleReader");//命令行终端
                 Class<?> completorC =
                     Class.forName("org.apache.zookeeper.JLineZNodeCompleter");
 
@@ -371,8 +371,8 @@ public class ZooKeeperMain {
     public void executeLine(String line) throws CliException, InterruptedException, IOException {
       if (!line.equals("")) {
         cl.parseCommand(line);
-        addToHistory(commandCount,line);
-        processCmd(cl);
+        addToHistory(commandCount,line);//加入历史命令行
+        processCmd(cl);//处理命令
         commandCount++;
       }
     }
@@ -652,7 +652,11 @@ public class ZooKeeperMain {
             System.out.println("Not connected");
             return false;
         }
-        
+
+        /**
+         * 执行create等命令...
+         * @see CreateCommand#parse(String[])
+         */
         // execute from commandMap
         CliCommand cliCmd = commandMapCli.get(cmd);
         if(cliCmd != null) {

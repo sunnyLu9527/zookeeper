@@ -46,6 +46,9 @@ public final class ConnectStringParser {
     private final ArrayList<InetSocketAddress> serverAddresses = new ArrayList<InetSocketAddress>();
 
     /**
+     * 解析服务器连接地址放到list中
+     * 集群模式下可能是多个以 ‘,’隔开
+     * @see #serverAddresses
      * Parse host and port by spliting client connectString
      * with support for IPv6 literals
      * @throws IllegalArgumentException

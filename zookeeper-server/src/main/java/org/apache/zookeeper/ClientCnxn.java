@@ -397,12 +397,12 @@ public class ClientCnxn {
         this.hostProvider = hostProvider;
         this.chrootPath = chrootPath;
 
-        connectTimeout = sessionTimeout / hostProvider.size();
-        readTimeout = sessionTimeout * 2 / 3;
+        connectTimeout = sessionTimeout / hostProvider.size();//设置连接超时时间
+        readTimeout = sessionTimeout * 2 / 3;//设置读取超时时间
         readOnly = canBeReadOnly;
 
-        sendThread = new SendThread(clientCnxnSocket);
-        eventThread = new EventThread();
+        sendThread = new SendThread(clientCnxnSocket);//初始化SendThread 建立socket连接
+        eventThread = new EventThread();//初始化SendThread
         this.clientConfig=zooKeeper.getClientConfig();
         initRequestTimeout();
     }
@@ -1139,7 +1139,15 @@ public class ClientCnxn {
             InetSocketAddress serverAddress = null;
             while (state.isAlive()) {
                 try {
-                    if (!clientCnxnSocket.isConnected()) {
+                    if (!clientCnxnSocket.isConnected()) {//socket还没有连接
+                        // 不是第一次连接，就随机等待...，重试，随机出时间进行重试
+                        if(!isFirstConnect){
+                            try {
+                                Thread.sleep(r.nextInt(1000));
+                            } catch (InterruptedException e) {
+                                LOG.warn("Unexpected exception", e);
+                            }
+                        }
                         // don't re-establish connection if we are closing
                         if (closing) {
                             break;
